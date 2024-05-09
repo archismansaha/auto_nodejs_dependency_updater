@@ -16,7 +16,7 @@ type PackageJSON struct {
 }
 
 // Update updates dependencies
-func Update(projectPath string, ignoreDeps, ignoreDevDeps bool) error {
+func Update(projectPath string, ignoreDeps, ignoreDevDeps bool,ignoreDependencies []string) error {
 	// Resolve absolute path
 	absPath, err := filepath.Abs(projectPath)
 	if err != nil {
@@ -50,7 +50,7 @@ func Update(projectPath string, ignoreDeps, ignoreDevDeps bool) error {
 	// Update dependencies
 	if !ignoreDeps {
 		for dep, version := range pkgJSON.Dependencies {
-			if err := updateDependency(absPath, dep, version); err != nil {
+			if err := updateDependency(absPath, dep, version,ignoreDependencies,&ignoredDependenciesCount); err != nil {
 				return err
 			}
 		}
@@ -61,7 +61,8 @@ func Update(projectPath string, ignoreDeps, ignoreDevDeps bool) error {
 	// Update devDependencies
 	if !ignoreDevDeps {
 		for dep, version := range pkgJSON.DevDependencies {
-			if err := updateDependency(absPath, dep, version); err != nil {
+			//&ignoredDependenciesCount passing address so that we can keep track of skipped dependencies and update that count
+			if err := updateDependency(absPath, dep, version,ignoreDependencies,&ignoredDependenciesCount); err != nil {
 				return err
 			}
 		}
@@ -74,7 +75,20 @@ func Update(projectPath string, ignoreDeps, ignoreDevDeps bool) error {
 	return nil
 }
 
-func updateDependency(absPath, dep, version string) error {
+func updateDependency(absPath, dep, version string,ignoreDependencies []string,ignoredDependenciesCount *int) error {
+	//check if the dependency is provided to skip updating
+	found := false
+	for _, element := range ignoreDependencies{
+		if element == dep {
+			found = true
+			*ignoredDependenciesCount+=1
+			break
+		}
+	}
+	if found {
+		fmt.Printf("%s ignoring the dependecy\n", colors.Yellow+dep+colors.Reset)
+		return nil
+	}
 	// Getting dependencies latest version
 	cmd := exec.Command("npm", "show", dep, "version")
 	output, err := cmd.CombinedOutput()
