@@ -19,7 +19,7 @@ func PrintUsage() {
 
 // PrintExample prints usage example
 func PrintExample() {
-	fmt.Printf("Example:\n  %s --path %s/path/to/project %s--ignore-dev-deps%s\n", os.Args[0], Yellow, Yellow, Reset)
+	fmt.Printf("Example:\n  %s --path %s/path/to/project %s--ignore-dev-deps%s true --ignore-dependencies%s 'nodemon,cors' \n", os.Args[0], Yellow, Yellow, Yellow,Reset)
 }
 
 // PrintError prints error message
