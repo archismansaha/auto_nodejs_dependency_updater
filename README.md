@@ -1,6 +1,8 @@
+# Update your node.js packages at ease
 
 ## Run this command to know the flags to use to update your node.js package
-`` bash
+``` bash
+
 ./dependency_updater.exe --usage
 
-``
+```
